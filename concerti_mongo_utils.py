@@ -1,7 +1,7 @@
 import pymongo
 
 # Connessione al database MongoDB
-client = pymongo.MongoClient("mongodb+srv://glag:v3Q5M3yO1RkOGicw@cluster0.dzlo6xy.mongodb.net/")
+client = pymongo.MongoClient("la stringa qui")
 db = client["biglietti"]
 
 # Funzione per generare un nuovo id univoco
