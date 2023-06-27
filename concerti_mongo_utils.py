@@ -1,4 +1,7 @@
 import pymongo
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
+
 
 # Connessione al database MongoDB
 client = pymongo.MongoClient("yoiur_mongo_connection_string")
@@ -27,9 +30,13 @@ def registra_utente():
         "password": password,
     }
 
-    utenti.insert_one(nuovo_utente)
-    print("Utente registrato con successo.")
-
+    try:
+        utenti.insert_one(nuovo_utente)
+        print("Utente registrato con successo.")
+    except DuplicateKeyError:
+        print("Errore: l'utente esiste già nel database.")
+              
+    
 # Funzione per effettuare il login
 def login():
     utenti = db["utenti"]
@@ -47,7 +54,7 @@ def login():
 
 # Funzione per visualizzare tutti gli eventi del database
 def visualizza_eventi(utente_ruolo):
-    
+
     if input("Sei sicuro di voler visualizzare tutti gli eventi presenti nel database? (s/n): ") == "s":
         collezioni = db.list_collection_names()
         for collezione in collezioni:
