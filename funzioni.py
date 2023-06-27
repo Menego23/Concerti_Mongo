@@ -1,4 +1,4 @@
-import pymongo
+from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 
@@ -6,23 +6,21 @@ from pymongo.errors import DuplicateKeyError
 ###############################################
 # CONNESSIONE AL DB
 ###############################################
-client = pymongo.MongoClient("stringa connessione")
+client = MongoClient("stringa connessione")
 db = client["biglietti"]
 
-# Funzione per generare un nuovo id univoco
+
+# Funzione per generare un nuovo id univoco (v)
 def genera_id(collection):
     count = collection.count_documents({})
     if count == 0:
         return 1
     else:
-        last_document = collection.find().sort("_id", -1).limit(1)
-        last_id = last_document[0]["_id"]
-        return last_id + 1
-    
+        return ObjectId()   # uso il metodo ObjectId() di bson per generare un id univoco
 
 
 ###############################################
-# REGISTRAZIONE UTENTE
+# REGISTRAZIONE UTENTE (v)
 ###############################################
 def registra_utente():
     utenti = db["utenti"]
@@ -33,8 +31,7 @@ def registra_utente():
     nuovo_utente = {
         "_id": genera_id(utenti),
         "username": username,
-        "password": password,
-
+        "password": password
     }
 
     try:
@@ -44,9 +41,8 @@ def registra_utente():
         print("Errore: l'utente esiste già nel database.")
 
 
-
 ###############################################
-# LOGIN
+# LOGIN (v)
 ###############################################
 def login():
     utenti = db["utenti"]
@@ -63,12 +59,8 @@ def login():
             print("Credenziali non valide. Riprova.")
 
 
-
-
-
-
 ###############################################
-# ACQUISTO BIGLIETTO
+# ACQUISTO BIGLIETTO (da verificare meglio) ----> (x)
 ###############################################
 def acquista_biglietto(utente_id):
     eventi = db["eventi"]
@@ -77,6 +69,7 @@ def acquista_biglietto(utente_id):
     evento_input = input("Seleziona l'evento (nome o numero): ")
 
     if evento_input.isdigit():
+        # Non mi convince questa conversione
         evento_id = int(evento_input)
     else:
         evento = eventi.find_one({"nome": evento_input})
@@ -110,19 +103,15 @@ def acquista_biglietto(utente_id):
     print("Biglietto acquistato con successo.")
 
 
-
-
-
-
-
 ###############################################
-# BIGLIETTI EVENTO
+# BIGLIETTI EVENTO (da verificare meglio) ----> (x)
 ###############################################
 def visualizza_biglietti():
     biglietti = db["biglietti"]
 
     evento_input = input("Seleziona l'evento (nome o numero): ")
     if evento_input.isdigit():
+        # Stessa cosa della conversione come nella funzione acquista_biglietto()
         evento_id = int(evento_input)
     else:
         evento = db["eventi"].find_one({"nome": evento_input})
@@ -141,10 +130,6 @@ def visualizza_biglietti():
         print(f"Nome: {biglietto['nome']}, Email: {biglietto['email']}")
 
 
-
-
-
-
 ###############################################
 # CERCA EVENTI
 ###############################################
@@ -158,7 +143,7 @@ def visualizza_eventi_e_biglietti():
 
     filtro_date = {
         "$gte": data_inizio,
-        "$lte": data_fine,
+        "$lte": data_fine
     }
 
     eventi_filtrati = eventi.find(
@@ -168,11 +153,11 @@ def visualizza_eventi_e_biglietti():
                 "$nearSphere": {
                     "$geometry": {
                         "type": "Point",
-                        "coordinates": [longitudine, latitudine],
+                        "coordinates": [longitudine, latitudine]
                     },
-                    "$maxDistance": 7000,  # 7km
+                    "$maxDistance": 7000    # 7km
                 }
-            },
+            }
         }
     )
 
@@ -183,7 +168,6 @@ def visualizza_eventi_e_biglietti():
     print("Eventi trovati:")
     for evento in eventi_filtrati:
         print(f"{evento['_id']}) {evento['nome']}, Biglietti rimanenti: {evento['biglietti_rimanenti']}")
-
 
 
 ###############################################
@@ -228,3 +212,5 @@ def menu_principale():
             print("Scelta non valida.")
 
 
+if __name__ == "__main__":
+    menu_principale()
