@@ -6,7 +6,7 @@ from pymongo.errors import DuplicateKeyError
 ###############################################
 # CONNESSIONE AL DB
 ###############################################
-client = pymongo.MongoClient("Stringa di connessione")
+client = pymongo.MongoClient("stringa connessione")
 db = client["biglietti"]
 
 # Funzione per generare un nuovo id univoco
@@ -181,12 +181,13 @@ def menu_principale():
             print(f"Utente selezionato: {utente_nome}")
     
             print("1) Acquista biglietto")
-            print("4) Visualizza biglietti di un evento")
+            print("3) Visualizza biglietti di un evento")
             print("5) Visualizza tutti gli eventi")
             print("0) Esci")
         else:
             print("1) Acquista biglietto")
-            print("6) Registra utente")
+            print("2) Registra utente")
+            print("3) Visualizza biglietti di un evento")
             print("0) Esci")
 
         scelta = input("Seleziona un'opzione: ")
@@ -194,8 +195,12 @@ def menu_principale():
         if scelta in ["1", "Acquista biglietto"]:
             utente_id, utente_nome,  = login()
             acquista_biglietto(utente_id, utente_ruolo)
-        elif scelta == "6":
+        elif scelta == "2":
             registra_utente()
+        elif scelta == "3":
+            visualizza_biglietti()
+        elif scelta == "5":
+            visualizza_eventi()
         elif scelta == "0":
             break
         else:
