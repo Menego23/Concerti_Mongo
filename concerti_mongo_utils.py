@@ -51,13 +51,13 @@ def login():
         else:
             print("Credenziali non valide. Riprova.")
 
-# Funzione per visualizzare tutti gli elementi del database
-def visualizza_elementi(utente_ruolo):
+# Funzione per visualizzare tutti gli eventi del database
+def visualizza_eventi(utente_ruolo):
     if utente_ruolo != "root":
         print("Funzione non disponibile per il tuo ruolo.")
         return
 
-    if input("Sei sicuro di voler visualizzare tutti gli elementi del database? (s/n): ") == "s":
+    if input("Sei sicuro di voler visualizzare tutti gli eventi presenti nel database? (s/n): ") == "s":
         collezioni = db.list_collection_names()
         for collezione in collezioni:
             print(f"Collezione: {collezione}")
@@ -65,13 +65,3 @@ def visualizza_elementi(utente_ruolo):
             for elemento in elementi:
                 print(elemento)
             print("\n")
-
-# Funzione per eliminare tutto il database
-def elimina_database(utente_ruolo):
-    if utente_ruolo != "root":
-        print("Funzione non disponibile per il tuo ruolo.")
-        return
-
-    if input("Sei sicuro di voler eliminare tutto il database? (s/n): ") == "s":
-        client.drop_database("biglietti")
-        print("Database eliminato con successo.")
