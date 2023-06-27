@@ -1,4 +1,7 @@
 import pymongo
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
+
 
 ###############################################
 # CONNESSIONE AL DB
@@ -34,8 +37,11 @@ def registra_utente():
 
     }
 
-    utenti.insert_one(nuovo_utente)
-    print("Utente registrato con successo.")
+    try:
+        utenti.insert_one(nuovo_utente)
+        print("Utente registrato con successo.")
+    except DuplicateKeyError:
+        print("Errore: l'utente esiste già nel database.")
 
 
 
