@@ -1,7 +1,7 @@
 import pymongo
 
 # Connessione al database MongoDB
-client = pymongo.MongoClient("la stringa qui")
+client = pymongo.MongoClient("yoiur_mongo_connection_string")
 db = client["biglietti"]
 
 # Funzione per generare un nuovo id univoco
@@ -20,17 +20,11 @@ def registra_utente():
 
     username = input("Username: ")
     password = input("Password: ")
-    ruolo = input("Ruolo (cantante/artista): ")
-
-    if ruolo not in ["cantante", "artista"]:
-        print("Ruolo non valido per la registrazione.")
-        return
 
     nuovo_utente = {
         "_id": genera_id(utenti),
         "username": username,
         "password": password,
-        "ruolo": ruolo
     }
 
     utenti.insert_one(nuovo_utente)
@@ -53,10 +47,7 @@ def login():
 
 # Funzione per visualizzare tutti gli eventi del database
 def visualizza_eventi(utente_ruolo):
-    if utente_ruolo != "root":
-        print("Funzione non disponibile per il tuo ruolo.")
-        return
-
+    
     if input("Sei sicuro di voler visualizzare tutti gli eventi presenti nel database? (s/n): ") == "s":
         collezioni = db.list_collection_names()
         for collezione in collezioni:

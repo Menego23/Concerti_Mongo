@@ -68,17 +68,15 @@ def main():
 
         if utente_ruolo == "root":
             print("1. Acquista biglietto")
-            print("2. Registra evento")
-            print("3. Annulla evento")
-            print("4. Visualizza biglietti di un evento")
-            print("5. Visualizza tutti gli eventi")
-            print("6. Registra utente")
-            print("7. Visualizza tutti gli elementi del database")
-            print("8. Esci")
+            print("2. Visualizza biglietti di un evento")
+            print("3. Visualizza tutti gli eventi")
+            print("4. Registra utente")
+            print("5. Visualizza tutti gli elementi del database")
+            print("6. Esci")
         
         else:
             print("1. Acquista biglietto")
-            print("4. Visualizza biglietti di un evento")
+            print("2. Visualizza biglietti di un evento")
             print("5. Visualizza tutti gli eventi")
             print("0. Esci")
 
@@ -88,18 +86,12 @@ def main():
                 utente_id, utente_ruolo = login()
                 acquista_biglietto(utente_id)
             elif scelta == "2":
-                utente_id, utente_ruolo = login()
-                registra_evento(utente_id, utente_ruolo)
-            elif scelta == "3":
-                utente_id, utente_ruolo = login()
-                annulla_evento(utente_id)
-            elif scelta == "4":
                 visualizza_biglietti()
-            elif scelta == "5":
+            elif scelta == "3":
                 visualizza_eventi()
-            elif scelta == "6":
+            elif scelta == "4":
                 registra_utente()
-            elif scelta == "7":
+            elif scelta == "5":
                 utente_id, utente_ruolo = login()
                 if utente_ruolo == "root":
                     visualizza_eventi(utente_ruolo)
@@ -113,9 +105,9 @@ def main():
         else:
             if scelta == "1":
                 acquista_biglietto(utente_id)
-            elif scelta == "4":
+            elif scelta == "2":
                 visualizza_biglietti()
-            elif scelta == "5":
+            elif scelta == "3":
                 visualizza_eventi()
             elif scelta == "0":
                 break
