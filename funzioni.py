@@ -145,24 +145,44 @@ def visualizza_biglietti():
 
 
 
-
-
-
 ###############################################
-# EVENTI
+# CERCA EVENTI
 ###############################################
-def visualizza_eventi():
+def visualizza_eventi_e_biglietti():
     eventi = db["eventi"]
 
-    tutti_eventi = eventi.find()
-    if not tutti_eventi:
-        print("Nessun evento presente nel database.")
+    data_inizio = input("Inserisci la data di inizio (YYYY-MM-DD): ")
+    data_fine = input("Inserisci la data di fine (YYYY-MM-DD): ")
+    latitudine = float(input("Inserisci la latitudine del luogo (es. 45.123456): "))
+    longitudine = float(input("Inserisci la longitudine del luogo (es. 9.987654): "))
+
+    filtro_date = {
+        "$gte": data_inizio,
+        "$lte": data_fine,
+    }
+
+    eventi_filtrati = eventi.find(
+        {
+            "data": filtro_date,
+            "luogo": {
+                "$nearSphere": {
+                    "$geometry": {
+                        "type": "Point",
+                        "coordinates": [longitudine, latitudine],
+                    },
+                    "$maxDistance": 7000,  # 7km
+                }
+            },
+        }
+    )
+
+    if not eventi_filtrati:
+        print("Nessun evento trovato con i filtri selezionati.")
         return
 
-    print("Eventi disponibili:")
-    for evento in tutti_eventi:
+    print("Eventi trovati:")
+    for evento in eventi_filtrati:
         print(f"{evento['_id']}) {evento['nome']}, Biglietti rimanenti: {evento['biglietti_rimanenti']}")
-
 
 
 
@@ -182,12 +202,13 @@ def menu_principale():
     
             print("1) Acquista biglietto")
             print("3) Visualizza biglietti di un evento")
-            print("5) Visualizza tutti gli eventi")
+            print("5) cerca eventi")
             print("0) Esci")
         else:
             print("1) Acquista biglietto")
             print("2) Registra utente")
             print("3) Visualizza biglietti di un evento")
+            print("5) Cerca eventi")
             print("0) Esci")
 
         scelta = input("Seleziona un'opzione: ")
@@ -200,7 +221,7 @@ def menu_principale():
         elif scelta == "3":
             visualizza_biglietti()
         elif scelta == "5":
-            visualizza_eventi()
+            visualizza_eventi_e_biglietti()
         elif scelta == "0":
             break
         else:
