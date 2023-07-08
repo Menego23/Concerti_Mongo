@@ -76,9 +76,19 @@ def genera_codice_biglietto():
 ###############################################
 # ACQUISTO BIGLIETTO
 ###############################################
-def acquista_biglietto(utente_id, utente_ruolo):
+def acquista_biglietto(utente_id):
     eventi = db["eventi"]
     biglietti = db["biglietti"]
+
+    #visualizza_concerti_disponibili(eventi)
+    eventi_list = list(eventi.find())
+    print("----------------------")
+    print("Eventi disponibili:")
+    for evento in eventi_list:
+        print("Nome: ", evento["nome"])
+        print("id: ", evento["_id"])
+        print("Biglietti rimanenti: ", evento["biglietti_rimanenti"])
+        print("----------------------")
 
     evento_input = input("Seleziona l'evento (nome o numero): ")
 
@@ -103,12 +113,14 @@ def acquista_biglietto(utente_id, utente_ruolo):
     nome = input("Nome: ")
     email = input("Email: ")
 
+    codice_biglietto = genera_codice_biglietto()
     nuovo_biglietto = {
         "_id": genera_id(biglietti),
         "evento_id": evento_id,
         "utente_id": utente_id,
         "nome": nome,
-        "email": email
+        "email": email,
+        "codice_biglietto": codice_biglietto
     }
 
     biglietti.insert_one(nuovo_biglietto)
