@@ -24,7 +24,6 @@ def login():
         return None
 
 
-
 ###############################################
 # REGISTRAZIONE UTENTE e LOGIN | FUNZIONANTE
 ###############################################
@@ -39,6 +38,92 @@ def registrazione():
         result = db.utenti.insert_one({"username": username, "password": password})
         print("Registrazione completata.")
 
+
+# Funzione per la ricerca dei concerti
+def ricerca_concerto(utente_id):
+    ricerca = input("Inserisci un termine di ricerca per l'artista o il nome del concerto: ")
+
+    concerti_trovati = db.concerti.find({"$or": [
+        {"artista": {"$regex": ricerca, "$options": "i"}},
+        {"nome_concerto": {"$regex": ricerca, "$options": "i"}}
+    ]})
+    concerti_trovati_list = list(concerti_trovati)
+
+    if len(concerti_trovati_list) == 0:
+        print("Nessun concerto trovato.")
+    else:
+        print("Concerti trovati:")
+        for concerto in concerti_trovati_list:
+            print(f"ID: {concerto['_id']}")
+            print(f"Artista: {concerto['artista']}")
+            print(f"Nome concerto: {concerto['nome_concerto']}")
+            print(f"Data: {concerto['data']}")
+            print(f"Luogo: {concerto['luogo']}")
+            print(f"Disponibilità biglietti: {concerto['disponibilita_biglietti']}")
+            print(f"Prezzo: {concerto['prezzo']}")
+            print("----------")
+
+        acquistare = input("Desideri acquistare uno dei concerti? (S/N): ")
+        if acquistare.lower() == "s":
+            concerto_id = input("Inserisci l'ID del concerto che desideri acquistare: ")
+            acquista_concerto(utente_id, concerto_id)
+
+
+def acquista_concerto(utente_id, concerto_id):
+    if concerto_id.isdigit():  # Verifica se l'ID del concerto è un intero
+        concerto = db.concerti.find_one({"_id": int(concerto_id), "disponibilita_biglietti": {"$gt": 0}})
+
+        if concerto:
+            disponibilita_biglietti = concerto['disponibilita_biglietti']
+
+            if disponibilita_biglietti > 0:
+                numero_biglietti = input("Inserisci il numero di biglietti da acquistare: ")
+
+                if numero_biglietti.isdigit() and int(numero_biglietti) > 0:
+                    numero_biglietti = int(numero_biglietti)
+
+                    if disponibilita_biglietti >= numero_biglietti:
+                        prezzo_unitario = concerto.get('prezzo')
+                        prezzo_totale = prezzo_unitario * numero_biglietti
+
+                        biglietti = []
+                        for _ in range(numero_biglietti):
+                            biglietto = {
+                                "utente_id": utente_id,
+                                "concerto_id": concerto_id,
+                                "numero_serie": ObjectId()
+                            }
+                            biglietti.append(biglietto)
+
+                        result = db.biglietti.insert_many(biglietti)
+
+                        # Aggiorna la disponibilità dei biglietti nel concerto
+                        db.concerti.update_one(
+                            {"_id": int(concerto_id)},
+                            {"$inc": {"disponibilita_biglietti": -numero_biglietti}}
+                        )
+
+                        print("Acquisto effettuato con successo.")
+                        print(f"Artista: {concerto.get('artista')}")
+                        print(f"Nome concerto: {concerto.get('nome_concerto')}")
+                        print(f"Data: {concerto.get('data')}")
+                        print(f"Luogo: {concerto.get('luogo')}")
+                        print(f"Prezzo unitario: {prezzo_unitario}")
+                        print("Numero di serie del biglietto:")
+                        for biglietto in result.inserted_ids:
+                            print(biglietto)
+                        print(f"Quantità acquistata: {numero_biglietti}")
+                        print(f"Prezzo totale: {prezzo_totale}")
+                    else:
+                        print("Il numero di biglietti richiesto supera la disponibilità.")
+                else:
+                    print("Numero di biglietti non valido.")
+            else:
+                print("Il concerto selezionato non è più disponibile.")
+        else:
+            print("Concerto non trovato.")
+    else:
+        print("ID del concerto non valido.")
 
 
 ###############################################
@@ -84,11 +169,6 @@ def acquista_biglietto(utente_id):
     print("Biglietto acquistato con successo.")
 
 
-
-
-
-
-
 ###############################################
 # BIGLIETTI EVENTO | non va, da fixare
 ###############################################
@@ -113,13 +193,6 @@ def visualizza_biglietti():
     print("Biglietti per l'evento:")
     for biglietto in biglietti_evento:
         print(f"Nome: {biglietto['nome']}, Email: {biglietto['email']}")
-
-
-
-
-
-
-
 
 
 ###############################################
@@ -154,4 +227,3 @@ def visualizza_concerti_disponibili():
                 print(f"Prezzo: {concerto['prezzo']}")
             
             print("----------")
-
