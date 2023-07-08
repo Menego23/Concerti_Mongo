@@ -80,7 +80,7 @@ def genera_codice_biglietto():
 # ACQUISTO BIGLIETTO
 ###############################################
 def acquista_biglietto(utente_id):
-    eventi = db["eventi"]
+    eventi = db["concerti"]
     biglietti = db["biglietti"]
 
     #visualizza_concerti_disponibili(eventi)
@@ -188,19 +188,19 @@ def visualizza_eventi():
 
 #Funzione ricerca per artista
 def ricerca_per_artista(artist_name):
-    query = {"artists": artist_name}
-    concerts = collection.find(query)
+    query = {"artista": artist_name.lower()}
+    eventi = db["concerti"]
+    concerts = eventi.find(query)
 
     data = []
     for concert in concerts:
-        data.append([concert['concert_name'], concert['artists'], concert['venue'], concert['date'], concert['tickets_remaining'], concert['ticket_price']])
+        data.append([concert['nome'], concert['artista'], concert['luogo'], concert['data'], concert['disponibilita_biglietti'], concert['prezzo']])
 
-    headers = ['Nome concerto', 'Artisti', 'Luogo', 'Data', 'Biglietti rimanenti','Prezzo']
+    headers = ['Nome concerto', 'Artista', 'Luogo', 'Data', 'Biglietti rimanenti','Prezzo']
     table = tabulate(data, headers=headers, tablefmt='fancy_grid')
     print(table)
 
-
-
+ricerca_per_artista(input("Inserisci il nome dell'artista: "))
 ###############################################
 # MENU APP
 ###############################################
