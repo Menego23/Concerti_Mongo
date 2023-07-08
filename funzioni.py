@@ -1,74 +1,48 @@
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
+import datetime
+from bson.objectid import ObjectId
 
 
 ###############################################
-# CONNESSIONE AL DB
+# CONNESSIONE AL DB | FUNZIONANTE
 ###############################################
-client = pymongo.MongoClient("stringa connessione")
-db = client["biglietti"]
+client = pymongo.MongoClient("mongodb+srv://gmeneghetti:Alfonso2003@cluster0.wke2rgu.mongodb.net/")
+db = client["Concerti"]
 
-# Funzione per generare un nuovo id univoco
-def genera_id(collection):
-    count = collection.count_documents({})
-    if count == 0:
-        return 1
-    else:
-        last_document = collection.find().sort("_id", -1).limit(1)
-        last_id = last_document[0]["_id"]
-        return last_id + 1
-    
-
-
-###############################################
-# REGISTRAZIONE UTENTE
-###############################################
-def registra_utente():
-    utenti = db["utenti"]
-
+# Funzione per effettuare il login
+def login():
     username = input("Username: ")
     password = input("Password: ")
 
-    nuovo_utente = {
-        "_id": genera_id(utenti),
-        "username": username,
-        "password": password,
-
-    }
-
-    try:
-        utenti.insert_one(nuovo_utente)
-        print("Utente registrato con successo.")
-    except DuplicateKeyError:
-        print("Errore: l'utente esiste già nel database.")
+    utente = db.utenti.find_one({"username": username, "password": password})
+    if utente:
+        return utente["_id"]
+    else:
+        print("Credenziali non valide.")
+        return None
 
 
 
 ###############################################
-# LOGIN
+# REGISTRAZIONE UTENTE e LOGIN | FUNZIONANTE
 ###############################################
-def login():
-    utenti = db["utenti"]
+def registrazione():
+    username = input("Username: ")
+    password = input("Password: ")
 
-    while True:
-        username = input("Username: ")
-        password = input("Password: ")
-
-        utente = utenti.find_one({"username": username, "password": password})
-        if utente:
-            print("Accesso effettuato.")
-            return utente["_id"], utente["username"]
-        else:
-            print("Credenziali non valide. Riprova.")
-
-
-
+    utente = db.utenti.find_one({"username": username})
+    if utente:
+        print("Username già esistente.")
+    else:
+        result = db.utenti.insert_one({"username": username, "password": password})
+        print("Registrazione completata.")
 
 
 
 ###############################################
-# ACQUISTO BIGLIETTO
+# ACQUISTO BIGLIETTO | NON VA, DA FIXARE
 ###############################################
 def acquista_biglietto(utente_id):
     eventi = db["eventi"]
@@ -116,7 +90,7 @@ def acquista_biglietto(utente_id):
 
 
 ###############################################
-# BIGLIETTI EVENTO
+# BIGLIETTI EVENTO | non va, da fixare
 ###############################################
 def visualizza_biglietti():
     biglietti = db["biglietti"]
@@ -149,61 +123,35 @@ def visualizza_biglietti():
 
 
 ###############################################
-# EVENTI
+# EVENTI DISPONIBILI
 ###############################################
-def visualizza_eventi():
-    eventi = db["eventi"]
-
-    tutti_eventi = eventi.find()
-    if not tutti_eventi:
-        print("Nessun evento presente nel database.")
-        return
-
-    print("Eventi disponibili:")
-    for evento in tutti_eventi:
-        print(f"{evento['_id']}) {evento['nome']}, Biglietti rimanenti: {evento['biglietti_rimanenti']}")
-
-
-
-
-###############################################
-# MENU APP
-###############################################
-def menu_principale():
-    utente_id = None
-    utente_nome = None
-    utente_ruolo = None
-
-    while True:
-        print("\nMenu principale:")
-
-        if utente_id:
-            print(f"Utente selezionato: {utente_nome}")
+def visualizza_concerti_disponibili():
+    concerti_disponibili = db.concerti.find({"$or": [
+        {"disponibilita_biglietti": {"$exists": False}},
+        {"disponibilita_biglietti": {"$gt": 0}}
+    ]})
+    concerti_disponibili_list = list(concerti_disponibili)
     
-            print("1) Acquista biglietto")
-            print("3) Visualizza biglietti di un evento")
-            print("5) Visualizza tutti gli eventi")
-            print("0) Esci")
-        else:
-            print("1) Acquista biglietto")
-            print("2) Registra utente")
-            print("3) Visualizza biglietti di un evento")
-            print("0) Esci")
-
-        scelta = input("Seleziona un'opzione: ")
-
-        if scelta in ["1", "Acquista biglietto"]:
-            utente_id, utente_nome,  = login()
-            acquista_biglietto(utente_id, utente_ruolo)
-        elif scelta == "2":
-            registra_utente()
-        elif scelta == "3":
-            visualizza_biglietti()
-        elif scelta == "5":
-            visualizza_eventi()
-        elif scelta == "0":
-            break
-        else:
-            print("Scelta non valida.")
-
+    if len(concerti_disponibili_list) == 0:
+        print("Nessun concerto disponibile.")
+    else:
+        print("Concerti disponibili:")
+        for concerto in concerti_disponibili_list:
+            print(f"ID: {concerto['_id']}")
+            print(f"Artista: {concerto['artista']}")
+            print(f"Nome concerto: {concerto['nome_concerto']}")
+            
+            if "data" in concerto:
+                print(f"Data: {concerto['data']}")
+            
+            if "luogo" in concerto:
+                print(f"Luogo: {concerto['luogo']}")
+            
+            if "disponibilita_biglietti" in concerto:
+                print(f"Disponibilità biglietti: {concerto['disponibilita_biglietti']}")
+            
+            if "prezzo" in concerto:
+                print(f"Prezzo: {concerto['prezzo']}")
+            
+            print("----------")
 
