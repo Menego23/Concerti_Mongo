@@ -6,7 +6,7 @@ from pymongo.errors import DuplicateKeyError
 ###############################################
 # CONNESSIONE AL DB
 ###############################################
-client = pymongo.MongoClient("stringa connessione")
+client = pymongo.MongoClient("mongodb+srv://gmeneghetti:Alfonso2003@cluster0.wke2rgu.mongodb.net/")
 db = client["biglietti"]
 
 # Funzione per generare un nuovo id univoco
