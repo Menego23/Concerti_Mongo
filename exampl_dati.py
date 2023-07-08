@@ -3,8 +3,8 @@ from pymongo import MongoClient
 import datetime
 
 # Connessione al database
-client = pymongo.MongoClient("stringa connessione")
-db = client["biglietti"]
+client = pymongo.MongoClient("mongodb+srv://gmeneghetti:Alfonso2003@cluster0.wke2rgu.mongodb.net/")
+db = client["Concerti"]
 
 # Creazione delle collezioni
 utenti = db["utenti"]
