@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 import time
 import random
+import string
 
 ###############################################
 # CONNESSIONE AL DB
