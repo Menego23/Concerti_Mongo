@@ -70,7 +70,7 @@ def login():
 ###############################################
 # ACQUISTO BIGLIETTO
 ###############################################
-def acquista_biglietto(utente_id):
+def acquista_biglietto(utente_id, utente_ruolo):
     eventi = db["eventi"]
     biglietti = db["biglietti"]
 
