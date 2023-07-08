@@ -75,6 +75,23 @@ def genera_codice_biglietto():
     codice_biglietto = f"{timestamp}_{random_code}"
     return codice_biglietto
 
+def visualizza_concerti_disponibili(eventi):
+    eventi_list = list(eventi.find())
+    if not eventi_list:
+        print("Nessun evento disponibile.")
+    else:
+        table = []
+        for evento in eventi_list:
+            row = [
+                evento["nome"],
+                evento["_id"],
+                evento["biglietti_rimanenti"]
+            ]
+            table.append(row)
+
+        headers = ["Nome", "ID", "Biglietti rimanenti"]
+        print("Eventi disponibili:")
+        print(tabulate(table, headers, tablefmt="grid"))
 
 ###############################################
 # ACQUISTO BIGLIETTO
@@ -83,15 +100,7 @@ def acquista_biglietto(utente_id):
     eventi = db["concerti"]
     biglietti = db["biglietti"]
 
-    #visualizza_concerti_disponibili(eventi)
-    eventi_list = list(eventi.find())
-    print("----------------------")
-    print("Eventi disponibili:")
-    for evento in eventi_list:
-        print("Nome: ", evento["nome"])
-        print("id: ", evento["_id"])
-        print("Biglietti rimanenti: ", evento["biglietti_rimanenti"])
-        print("----------------------")
+    visualizza_concerti_disponibili(eventi)
 
     evento_input = input("Seleziona l'evento (nome o numero): ")
 
