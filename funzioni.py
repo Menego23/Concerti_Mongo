@@ -4,12 +4,14 @@ from pymongo.errors import DuplicateKeyError
 import time
 import random
 import string
+from tabulate import tabulate
 
 ###############################################
 # CONNESSIONE AL DB
 ###############################################
 client = pymongo.MongoClient("mongodb+srv://gmeneghetti:Alfonso2003@cluster0.wke2rgu.mongodb.net/")
 db = client["biglietti"]
+collection = db.Concerti
 
 # Funzione per generare un nuovo id univoco
 def genera_id(collection):
@@ -182,6 +184,20 @@ def visualizza_eventi():
     for evento in tutti_eventi:
         print(f"{evento['_id']}) {evento['nome']}, Biglietti rimanenti: {evento['biglietti_rimanenti']}")
 
+
+
+#Funzione ricerca per artista
+def ricerca_per_artista(artist_name):
+    query = {"artists": artist_name}
+    concerts = collection.find(query)
+
+    data = []
+    for concert in concerts:
+        data.append([concert['concert_name'], concert['artists'], concert['venue'], concert['date'], concert['tickets_remaining'], concert['ticket_price']])
+
+    headers = ['Nome concerto', 'Artisti', 'Luogo', 'Data', 'Biglietti rimanenti','Prezzo']
+    table = tabulate(data, headers=headers, tablefmt='fancy_grid')
+    print(table)
 
 
 
