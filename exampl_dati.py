@@ -29,6 +29,16 @@ utenti.insert_many([
         "_id": 3,
         "username": "markjohnson",
         "password": "password3"
+    },
+    {
+        "_id": 4,
+        "username": "maryjones",
+        "password": "password4"
+    },
+    {
+        "_id": 5,
+        "username": "michaelbrown",
+        "password": "password5"
     }
 ])
 
@@ -69,6 +79,24 @@ concerti.insert_many([
         "luogo": "Staples Center, Los Angeles",
         "disponibilita_biglietti": 400,
         "prezzo": 90.00
+    },
+    {
+        "_id": 5,
+        "artista": "Ed Sheeran",
+        "nome_concerto": "Divide World Tour",
+        "data": datetime.datetime(2023, 12, 1, 19, 0),
+        "luogo": "Wembley Stadium, Londra",
+        "disponibilita_biglietti": 800,
+        "prezzo": 80.00
+    },
+    {
+        "_id": 6,
+        "artista": "Beyoncé",
+        "nome_concerto": "Formation World Tour",
+        "data": datetime.datetime(2023, 12, 15, 20, 0),
+        "luogo": "Rose Bowl, Pasadena",
+        "disponibilita_biglietti": 1000,
+        "prezzo": 200.00
     }
 ])
 
@@ -94,6 +122,20 @@ biglietti.insert_many([
         "utente_id": 3,
         "nome": "Mark Johnson",
         "email": "markjohnson@example.com"
+    },
+    {
+        "_id": 4,
+        "concerto_id": 3,
+        "utente_id": 1,
+        "nome": "John Doe",
+        "email": "johndoe@example.com"
+    },
+    {
+        "_id": 5,
+        "concerto_id": 4,
+        "utente_id": 2,
+        "nome": "Jane Smith",
+        "email": "janesmith@example.com"
     }
 ])
 
