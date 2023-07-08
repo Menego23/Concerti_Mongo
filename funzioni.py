@@ -1,7 +1,8 @@
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-
+import time
+import random
 
 ###############################################
 # CONNESSIONE AL DB
@@ -64,7 +65,12 @@ def login():
 
 
 
-
+def genera_codice_biglietto():
+    # Genera un codice casuale basato sull'orario attuale
+    timestamp = int(time.time())
+    random_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    codice_biglietto = f"{timestamp}_{random_code}"
+    return codice_biglietto
 
 
 ###############################################
