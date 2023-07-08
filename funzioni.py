@@ -5,9 +5,9 @@ import datetime
 from bson.objectid import ObjectId
 
 
-###############################################
+##############################################################################################################
 # CONNESSIONE AL DB | FUNZIONANTE
-###############################################
+##############################################################################################################
 client = pymongo.MongoClient("mongodb+srv://gmeneghetti:Alfonso2003@cluster0.wke2rgu.mongodb.net/")
 db = client["Concerti"]
 
@@ -24,9 +24,9 @@ def login():
         return None
 
 
-###############################################
+##############################################################################################################
 # REGISTRAZIONE UTENTE e LOGIN | FUNZIONANTE
-###############################################
+##############################################################################################################
 def registrazione():
     username = input("Username: ")
     password = input("Password: ")
@@ -38,8 +38,9 @@ def registrazione():
         result = db.utenti.insert_one({"username": username, "password": password})
         print("Registrazione completata.")
 
-
+##############################################################################################################
 # Funzione per la ricerca dei concerti
+##############################################################################################################
 def ricerca_concerto(utente_id):
     ricerca = input("Inserisci un termine di ricerca per l'artista o il nome del concerto: ")
 
@@ -68,6 +69,47 @@ def ricerca_concerto(utente_id):
             concerto_id = input("Inserisci l'ID del concerto che desideri acquistare: ")
             acquista_concerto(utente_id, concerto_id)
 
+
+##############################################################################################################
+# Funzione per la visualizzazione dei concerti disponibili
+##############################################################################################################
+
+def visualizza_concerti_disponibili():
+    concerti_disponibili = db.concerti.find({"$or": [
+        {"disponibilita_biglietti": {"$exists": False}},
+        {"disponibilita_biglietti": {"$gt": 0}}
+    ]})
+    concerti_disponibili_list = list(concerti_disponibili)
+    
+    if len(concerti_disponibili_list) == 0:
+        print("Nessun concerto disponibile.")
+    else:
+        print("Concerti disponibili:")
+        for concerto in concerti_disponibili_list:
+            print(f"ID: {concerto['_id']}")
+            print(f"Artista: {concerto['artista']}")
+            print(f"Nome concerto: {concerto['nome_concerto']}")
+            
+            if "data" in concerto:
+                print(f"Data: {concerto['data']}")
+            
+            if "luogo" in concerto:
+                print(f"Luogo: {concerto['luogo']}")
+            
+            if "disponibilita_biglietti" in concerto:
+                print(f"Disponibilità biglietti: {concerto['disponibilita_biglietti']}")
+            
+            if "prezzo" in concerto:
+                print(f"Prezzo: {concerto['prezzo']}")
+            
+            print("----------")
+
+
+
+
+#####################################################################################################################################
+# Funzione per la visualizzazione dei concerti disponibili e acquisto biglietti
+#####################################################################################################################################
 
 def acquista_concerto(utente_id, concerto_id):
     if concerto_id.isdigit():  # Verifica se l'ID del concerto è un intero
@@ -126,9 +168,9 @@ def acquista_concerto(utente_id, concerto_id):
         print("ID del concerto non valido.")
 
 
-###############################################
+##############################################################################################################
 # ACQUISTO BIGLIETTO | NON VA, DA FIXARE
-###############################################
+##############################################################################################################
 def acquista_biglietto(utente_id):
     eventi = db["eventi"]
     biglietti = db["biglietti"]
@@ -169,9 +211,9 @@ def acquista_biglietto(utente_id):
     print("Biglietto acquistato con successo.")
 
 
-###############################################
+##################################################################################################################
 # BIGLIETTI EVENTO | non va, da fixare
-###############################################
+##################################################################################################################
 def visualizza_biglietti():
     biglietti = db["biglietti"]
 
@@ -195,9 +237,10 @@ def visualizza_biglietti():
         print(f"Nome: {biglietto['nome']}, Email: {biglietto['email']}")
 
 
-###############################################
+
+##################################################################################################################
 # EVENTI DISPONIBILI
-###############################################
+##################################################################################################################
 def visualizza_concerti_disponibili():
     concerti_disponibili = db.concerti.find({"$or": [
         {"disponibilita_biglietti": {"$exists": False}},
@@ -227,3 +270,45 @@ def visualizza_concerti_disponibili():
                 print(f"Prezzo: {concerto['prezzo']}")
             
             print("----------")
+
+
+
+##################################################################################################################
+#  VISUALIZZA BIGLIETTI UTENTE
+##################################################################################################################
+
+# Funzione per visualizzare i biglietti acquistati da un utente
+def visualizza_biglietti_utente(utente_id):
+    utente_id_obj = ObjectId(utente_id)
+    biglietti_utente = db.biglietti.find({"utente_id": utente_id_obj})
+    biglietti_utente_list = list(biglietti_utente)
+
+    if len(biglietti_utente_list) == 0:
+        print("Non hai ancora acquistato nessun biglietto.")
+    else:
+        print("\n\n Ecco i tuoi biglietti acquistati:")
+        concerti_acquistati = {}
+
+        for biglietto in biglietti_utente_list:
+            concerto_id = int(biglietto["concerto_id"])
+            concerto = db.concerti.find_one({"_id": concerto_id})
+            if concerto:
+                concerto_info = f"Artista: {concerto.get('artista')}\n" \
+                                f"Nome concerto: {concerto.get('nome_concerto')}\n" \
+                                f"Data: {concerto.get('data')}\n" \
+                                f"Luogo: {concerto.get('luogo')}\n" \
+                                f"Numero di serie del biglietto: {biglietto['_id']}"
+
+                if concerto_id not in concerti_acquistati:
+                    concerti_acquistati[concerto_id] = {
+                        "info": concerto_info,
+                        "quantita": 1
+                    }
+                else:
+                    concerti_acquistati[concerto_id]["quantita"] += 1
+
+        for concerto_id, concerto_data in concerti_acquistati.items():
+            print("----------")
+            print(concerto_data["info"])
+            print(f"Quantità acquistata: {concerto_data['quantita']}")
+
