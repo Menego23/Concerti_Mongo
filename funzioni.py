@@ -88,7 +88,7 @@ def ricerca_concerto():
 
         concerti = db.concerti.find({"$and": [{"data": {"$gte": data_ricerca_1}}, {"data": {"$lte": data_ricerca_2}}]})
 
-        concerti_list = list(concerti)
+    concerti_list = list(concerti)
 
     if len(concerti_list) == 0:
         print("\nNessun concerto trovato.")
