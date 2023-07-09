@@ -43,32 +43,53 @@ def login():
 # Funzione per la ricerca dei concerti
 ##############################################################################################################
 def ricerca_concerto(utente_id):
-    ricerca = input("Inserisci un termine di ricerca per l'artista o il nome del concerto: ")
-
-    concerti_trovati = db.concerti.find({"$or": [
-        {"artista": {"$regex": ricerca, "$options": "i"}},
-        {"nome_concerto": {"$regex": ricerca, "$options": "i"}}
-    ]})
-    concerti_trovati_list = list(concerti_trovati)
-
-    if len(concerti_trovati_list) == 0:
-        print("Nessun concerto trovato.")
+    tipo_ricerca = input("Seleziona il tipo di ricerca:\n1. Per artista o nome concerto\n2. Per coordinate geografiche\nScelta: ")
+    
+    if tipo_ricerca == "1":
+        termine_ricerca = input("Inserisci un termine di ricerca per l'artista o il nome del concerto: ")
+        concerti = db.concerti.find({"$or": [
+            {"artista": {"$regex": termine_ricerca, "$options": "i"}},
+            {"nome_concerto": {"$regex": termine_ricerca, "$options": "i"}}
+        ]})
+    elif tipo_ricerca == "2":
+        latitudine = float(input("Inserisci la latitudine: "))
+        longitudine = float(input("Inserisci la longitudine: "))
+        raggio = float(input("Inserisci il raggio di ricerca (in km): "))
+        
+        # Calcola la distanza massima in radianti corrispondente al raggio di ricerca
+        max_distance = raggio / 6371
+        
+        concerti = db.concerti.find({
+            "location": {
+                "$nearSphere": {
+                    "$geometry": {
+                        "type": "Point",
+                        "coordinates": [longitudine, latitudine]
+                    },
+                    "$maxDistance": max_distance
+                }
+            }
+        })
     else:
+        print("Scelta non valida.")
+        return
+    
+    if concerti.count() > 0:
         print("Concerti trovati:")
-        for concerto in concerti_trovati_list:
-            print(f"ID: {concerto['_id']}")
-            print(f"Artista: {concerto['artista']}")
-            print(f"Nome concerto: {concerto['nome_concerto']}")
-            print(f"Data: {concerto['data']}")
-            print(f"Luogo: {concerto['luogo']}")
-            print(f"Disponibilità biglietti: {concerto['disponibilita_biglietti']}")
-            print(f"Prezzo: {concerto['prezzo']}")
+        for concerto in concerti:
             print("----------")
+            print(f"ID: {concerto.get('_id')}")
+            print(f"Artista: {concerto.get('artista')}")
+            print(f"Nome concerto: {concerto.get('nome_concerto')}")
+            print(f"Data: {concerto.get('data')}")
+            print(f"Luogo: {concerto.get('luogo')}")
+            print(f"Disponibilità biglietti: {concerto.get('disponibilita_biglietti')}")
+            print(f"Prezzo: {concerto.get('prezzo')}")
+            print("----------")
+    else:
+        print("Nessun concerto trovato.")
 
-        acquistare = input("Desideri acquistare uno dei concerti? (S/N): ")
-        if acquistare.lower() == "s":
-            concerto_id = input("Inserisci l'ID del concerto che desideri acquistare: ")
-            acquista_concerto(utente_id, concerto_id)
+
 
 
 ##############################################################################################################
