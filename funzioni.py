@@ -75,18 +75,20 @@ def ricerca_concerto():
             }
         })
     elif scelta == "3":
-        data_ricerca = input("Inserisci la data di interesse nel formato YYYY-MM-DD: ")
+
+        data_ricerca_1 = input("Inserisci la prima data di interesse nel formato YYYY-MM-DD: ")
+        data_ricerca_2 = input("Inserisci la seconda data di interesse nel formato YYYY-MM-DD: ")
+
         try:
-            data_ricerca = datetime.strptime(data_ricerca, "%Y-%m-%d").date()
+            data_ricerca_1 = datetime.strptime(data_ricerca_1, "%Y-%m-%d")
+            data_ricerca_2 = datetime.strptime(data_ricerca_2, "%Y-%m-%d")
         except ValueError:
             print("Formato data non valido. Riprova.")
             return
-        concerti = db.concerti.find({"data": data_ricerca})
-    else:
-        print("\nScelta non valida.")
-        return
 
-    concerti_list = list(concerti)
+        concerti = db.concerti.find({"$and": [{"data": {"$gte": data_ricerca_1}}, {"data": {"$lte": data_ricerca_2}}]})
+
+        concerti_list = list(concerti)
 
     if len(concerti_list) == 0:
         print("\nNessun concerto trovato.")
