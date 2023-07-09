@@ -1,12 +1,8 @@
 from funzioni import *
 
-#cose da fixare:
-# -aggiungere la possibilità di cercare per luogo
+#cose da aggiungere:
 # -aggiungere la possibilità di cercare per data
 # -aggiungere la possibilità di cercare per prezzo
-# -acquisto biglietti del concerto
-# -visualizzazione biglietti acquistati
-
 
 
 # Funzione principale
