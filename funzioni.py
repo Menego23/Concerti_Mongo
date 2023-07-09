@@ -238,42 +238,6 @@ def acquista_concerto(utente_id, concerto_id):
 
 
 
-##################################################################################################################
-# BIGLIETTI EVENTO | OK
-##################################################################################################################
-def visualizza_biglietti_utente(utente_id):
-    utente_id_obj = ObjectId(utente_id)
-    biglietti_utente = db.biglietti.find({"utente_id": utente_id_obj})
-    biglietti_utente_list = list(biglietti_utente)
-
-    if len(biglietti_utente_list) == 0:
-        print("Non hai ancora acquistato nessun biglietto.")
-    else:
-        print("\n\n Ecco i tuoi biglietti acquistati:")
-        concerti_acquistati = {}
-
-        for biglietto in biglietti_utente_list:
-            concerto_id = int(biglietto["concerto_id"])
-            concerto = db.concerti.find_one({"_id": concerto_id})
-            if concerto:
-                concerto_info = f"Artista: {concerto.get('artista')}\n" \
-                                f"Nome concerto: {concerto.get('nome_concerto')}\n" \
-                                f"Data: {concerto.get('data')}\n" \
-                                f"Luogo: {concerto.get('luogo')}\n" \
-                                f"Numero di serie del biglietto: {biglietto['_id']}"
-
-                if concerto_id not in concerti_acquistati:
-                    concerti_acquistati[concerto_id] = {
-                        "info": concerto_info,
-                        "quantita": 1
-                    }
-                else:
-                    concerti_acquistati[concerto_id]["quantita"] += 1
-
-        for concerto_id, concerto_data in concerti_acquistati.items():
-            print("----------")
-            print(concerto_data["info"])
-            print(f"Quantità acquistata: {concerto_data['quantita']}")
 
 
 
