@@ -17,7 +17,7 @@ def main():
                 if utente_id:
                     print("Login effettuato con successo.")
             elif scelta == "2":
-                registrazione()
+                utente_id = registrazione()
             elif scelta == "3":
                 break
             else:
@@ -33,7 +33,8 @@ def main():
             scelta = input("Opzione: ")
 
             if scelta == "1":
-                ricerca_concerto()  
+                ricerca_concerto() 
+                acquista_concerto(utente_id) 
             elif scelta == "2":
                 visualizza_concerti_disponibili()
             elif scelta == "3":
