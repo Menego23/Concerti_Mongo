@@ -1,10 +1,5 @@
 from funzioni import *
 
-#cose da aggiungere:
-# -aggiungere la possibilità di cercare per data
-# -aggiungere la possibilità di cercare per prezzo
-
-
 # Funzione principale
 def main():
     utente_id = None
@@ -28,24 +23,21 @@ def main():
             else:
                 print("Opzione non valida.")
         else:
-            print("\n\nSeleziona un'opzione:")
+            print("\nSeleziona un'opzione:")
             print("1. Cerca concerti")
             print("2. Visualizza concerti disponibili")
             print("3. Visualizza biglietti acquistati")
             print("4. Logout")
-            print("5. Esci\n\n")
+            print("5. Esci")
 
             scelta = input("Opzione: ")
 
             if scelta == "1":
-                ricerca_concerto(utente_id)
-            elif scelta == 'X':
-                pass
-            #fare che si possa cercare per luogo
+                ricerca_concerto()  
             elif scelta == "2":
                 visualizza_concerti_disponibili()
             elif scelta == "3":
-                visualizza_biglietti_utente(utente_id)
+                visualizza_biglietti_utente(utente_id)  # Passa l'ID dell'utente alla funzione visualizza_biglietti_utente
             elif scelta == "4":
                 utente_id = None
                 print("Logout effettuato.")
@@ -54,3 +46,7 @@ def main():
             else:
                 print("Opzione non valida.")
 
+
+
+if __name__ == "__main__":
+    main()

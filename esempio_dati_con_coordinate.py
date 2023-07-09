@@ -1,5 +1,6 @@
 import pymongo
 from datetime import datetime
+from pymongo import MongoClient
 
 # Crea una connessione al database MongoDB
 client = pymongo.MongoClient("mongodb+srv://gmeneghetti:Alfonso2003@cluster0.wke2rgu.mongodb.net/")

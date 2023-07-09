@@ -1,8 +1,9 @@
 import pymongo
-from pymongo import MongoClient
+from pymongo import MongoClient, GEOSPHERE
 from pymongo.errors import DuplicateKeyError
-import datetime
+from datetime import datetime
 from bson.objectid import ObjectId
+
 
 
 ##############################################################################################################
@@ -10,6 +11,8 @@ from bson.objectid import ObjectId
 ##############################################################################################################
 client = pymongo.MongoClient("mongodb+srv://gmeneghetti:Alfonso2003@cluster0.wke2rgu.mongodb.net/")
 db = client["Concerti"]
+
+db.concerti.create_index([("coordinate", "2dsphere")])
 
 ##############################################################################################################
 # REGISTRAZIONE UTENTE e LOGIN | FUNZIONANTE
@@ -42,54 +45,95 @@ def login():
 ##############################################################################################################
 # Funzione per la ricerca dei concerti
 ##############################################################################################################
-def ricerca_concerto(utente_id):
-    tipo_ricerca = input("Seleziona il tipo di ricerca:\n1. Per artista o nome concerto\n2. Per coordinate geografiche\nScelta: ")
-    
-    if tipo_ricerca == "1":
-        termine_ricerca = input("Inserisci un termine di ricerca per l'artista o il nome del concerto: ")
-        concerti = db.concerti.find({"$or": [
-            {"artista": {"$regex": termine_ricerca, "$options": "i"}},
-            {"nome_concerto": {"$regex": termine_ricerca, "$options": "i"}}
-        ]})
-    elif tipo_ricerca == "2":
+def ricerca_concerto():
+    print("Seleziona il tipo di ricerca:")
+    print("1. Ricerca per artista o nome concerto")
+    print("2. Ricerca per coordinate geografiche")
+    print("3. Ricerca per data")
+    scelta = input("Opzione: ")
+
+    if scelta == "1":
+        termine_ricerca = input("\nInserisci il nome dell'artista o del concerto: ")
+        concerti = db.concerti.find({
+            "$or": [
+                {"artista": {"$regex": termine_ricerca, "$options": "i"}},
+                {"nome_concerto": {"$regex": termine_ricerca, "$options": "i"}}
+            ]
+        })
+    elif scelta == "2":
         latitudine = float(input("Inserisci la latitudine: "))
         longitudine = float(input("Inserisci la longitudine: "))
-        raggio = float(input("Inserisci il raggio di ricerca (in km): "))
-        
-        # Calcola la distanza massima in radianti corrispondente al raggio di ricerca
-        max_distance = raggio / 6371
-        
         concerti = db.concerti.find({
-            "location": {
-                "$nearSphere": {
+            "coordinate": {
+                "$near": {
                     "$geometry": {
                         "type": "Point",
                         "coordinates": [longitudine, latitudine]
                     },
-                    "$maxDistance": max_distance
+                    "$maxDistance": 7000  # Distanza massima in metri (7 km)
                 }
             }
         })
+    elif scelta == "3":
+        data_ricerca = input("Inserisci la data di interesse nel formato YYYY-MM-DD: ")
+        try:
+            data_ricerca = datetime.strptime(data_ricerca, "%Y-%m-%d").date()
+        except ValueError:
+            print("Formato data non valido. Riprova.")
+            return
+        concerti = db.concerti.find({"data": data_ricerca})
     else:
-        print("Scelta non valida.")
+        print("\nScelta non valida.")
         return
-    
-    if concerti.count() > 0:
-        print("Concerti trovati:")
-        for concerto in concerti:
-            print("----------")
-            print(f"ID: {concerto.get('_id')}")
-            print(f"Artista: {concerto.get('artista')}")
-            print(f"Nome concerto: {concerto.get('nome_concerto')}")
-            print(f"Data: {concerto.get('data')}")
-            print(f"Luogo: {concerto.get('luogo')}")
-            print(f"Disponibilità biglietti: {concerto.get('disponibilita_biglietti')}")
-            print(f"Prezzo: {concerto.get('prezzo')}")
-            print("----------")
+
+    concerti_list = list(concerti)
+
+    if len(concerti_list) == 0:
+        print("\nNessun concerto trovato.")
+        return
+
+    print("\nConcerti trovati:")
+    for concerto in concerti_list:
+        print("ID:", concerto["_id"])
+        print("Artista:", concerto["artista"])
+        print("Nome concerto:", concerto["nome_concerto"])
+        print("Data:", concerto["data"])
+        print("Luogo:", concerto["luogo"])
+        print("Disponibilità biglietti:", concerto["disponibilita_biglietti"])
+        print("Prezzo:", concerto["prezzo"])
+        print("----------")
+
+    acquisto = input("\nVuoi acquistare un biglietto? (S/N): ")
+    if acquisto.lower() == "s":
+        id_concerto = input("Inserisci l'ID del concerto da acquistare: ")
+        biglietti_da_acquistare = int(input("Inserisci il numero di biglietti da acquistare: "))
+
+        concerto_da_acquistare = db.concerti.find_one({"_id": int(id_concerto)})
+
+        if not concerto_da_acquistare:
+            print("\nConcerto non trovato.")
+            return
+
+        disponibilita = concerto_da_acquistare["disponibilita_biglietti"]
+        prezzo = concerto_da_acquistare["prezzo"]
+
+        if biglietti_da_acquistare <= disponibilita:
+            costo_totale = biglietti_da_acquistare * prezzo
+            print(f"\nAcquisto confermato!\nHai acquistato {biglietti_da_acquistare} biglietti per il concerto {concerto_da_acquistare['nome_concerto']}.")
+            print(f"Il costo totale dell'acquisto è: {costo_totale} Euro.")
+            # Aggiorna la disponibilità dei biglietti nel database
+            db.concerti.update_one({"_id": int(id_concerto)}, {"$inc": {"disponibilita_biglietti": -biglietti_da_acquistare}})
+        else:
+            print("\nNumero di biglietti richiesti supera la disponibilità.")
     else:
-        print("Nessun concerto trovato.")
+        print("\nAcquisto annullato.")
 
 
+
+
+##############################################################################################################
+# funzione acquisto biglietti
+##############################################################################################################
 
 
 ##############################################################################################################
