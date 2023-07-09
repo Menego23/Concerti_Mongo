@@ -42,6 +42,7 @@ def main():
                 utente_id = None
                 print("Logout effettuato.")
             elif scelta == "5":
+                print("Arrivederci.")
                 break
             else:
                 print("Opzione non valida.")
